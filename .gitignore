@@ -1,0 +1,109 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# Generated monitor files (until ready for production)
+nodejs-monitors/monitors/lightweight/*.yml
+nodejs-monitors/monitors/journey/*.ts
+nodejs-monitors/monitors/journey/*.js
+
+# Migration results and logs
+python-migration/migration_results_*.json
+python-migration/logs/
+*.log
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Elastic Stack data
+docker-elk/elasticsearch/data/
+docker-elk/logstash/pipeline/
+docker-elk/kibana/config/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# API credentials and tokens
+credentials.json
+tokens.json
+api_keys.txt
+
+# Test outputs
+test-results/
+coverage/
+.coverage
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Local configuration overrides
+config.local.json
+settings.local.json
