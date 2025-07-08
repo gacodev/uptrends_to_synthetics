@@ -40,12 +40,15 @@ class MigrationScript:
         
         # Paso 1: Lista predefinida de monitores para migración
         print("Procesando lista predefinida de monitores...")
-        monitors_list = [
+        ''' monitors_list = [
             {"guid": "9232815e-d30c-4481-b906-15e245e09482", "name": "A Jenkins Core common-services-us"},
             {"guid": "7b7e9653-59c2-4b2a-a6e9-98462fe60ef0", "name": "CLVT-US-ALM-CommonServices-Beta-CommonServicesBeta"},
             {"guid": "b3a129ef-d19a-47b1-a480-a100d9c303c5", "name": "CLVT-US-ALM-CommonServices-Prd-CommonServices"},
             {"guid": "7f8b86ca-34be-4027-b45e-c20d64ae9d80", "name": "CCDM Common Service Prod"}
-        ]
+        ]'''
+
+        monitors_list = self.uptrends_client.get_monitors_list(name_pattern)
+        print(f"Monitores encontrados: {len(monitors_list)}")
         
         # Filtrar por patrón si se especifica
         if name_pattern:
@@ -176,8 +179,16 @@ class MigrationScript:
                     result["errors"] = script_errors
                     return result
             
+            # Debug: Guardar configuración generada para debugging
+            debug_config_file = f"debug_config_{monitor.monitor_guid}.json"
+            with open(debug_config_file, 'w', encoding='utf-8') as f:
+                json.dump(monitor_config, f, indent=2, ensure_ascii=False)
+            print(f"DEBUG: Configuración guardada en {debug_config_file}")
+            
             # Guardar archivo
+            print(f"DEBUG: Guardando archivo para {monitor.name} como {classification.elastic_type.value}")
             filename = self._save_monitor_file(monitor, classification, monitor_config)
+            print(f"DEBUG: Archivo guardado como: {filename}")
             
             result.update({
                 "success": True,
@@ -227,9 +238,6 @@ class MigrationScript:
                 
             if monitor.expected_http_status_code:
                 base_config["check.response.status"] = [monitor.expected_http_status_code]
-                
-            if monitor.match_pattern:
-                base_config["check.response.body.positive"] = [monitor.match_pattern]
                 
         elif classification.elastic_type.value == "tcp":
             # Extraer host y puerto de la URL

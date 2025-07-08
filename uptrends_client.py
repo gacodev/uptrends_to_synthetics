@@ -59,11 +59,12 @@ class UptrendsClient:
         self.username = username
         self.password = password
         self.base_url = "https://api.uptrends.com/v4"
-        self.session = requests.Session()
-        self.session.auth = (username, password)
-        self.session.headers.update({
-            'Content-Type': 'application/json'
-        })
+        # Headers para requests
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        self.auth = (username, password)
         self.monitor_limit = 4  # Límite inicial para pruebas
     
     def get_monitors_list(self, name_pattern: Optional[str] = None) -> List[Dict]:
@@ -73,10 +74,14 @@ class UptrendsClient:
         url = f"{self.base_url}/Monitor"
         
         try:
-            response = self.session.get(url)
+            print(f"DEBUG: Haciendo request a: {url}")
+            response = requests.get(url, auth=self.auth, headers=self.headers, timeout=30)
+            print(f"DEBUG: Response status: {response.status_code}")
             response.raise_for_status()
             
             monitors_data = response.json()
+            print(f"DEBUG: Respuesta JSON contiene {len(monitors_data)} monitores")
+            
             filtered_monitors = []
             
             for monitor_data in monitors_data:
@@ -99,8 +104,12 @@ class UptrendsClient:
                     print(f"Limitando a {self.monitor_limit} monitores para pruebas iniciales")
                     break
             
+            print(f"DEBUG: Filtrados {len(filtered_monitors)} monitores")
             return filtered_monitors
             
+        except requests.exceptions.Timeout:
+            print("Error: Timeout al obtener lista de monitores")
+            return []
         except requests.exceptions.RequestException as e:
             print(f"Error al obtener lista de monitores: {e}")
             return []
@@ -112,12 +121,15 @@ class UptrendsClient:
         url = f"{self.base_url}/Monitor/{monitor_guid}"
         
         try:
-            response = self.session.get(url)
+            response = requests.get(url, auth=self.auth, headers=self.headers, timeout=30)
             response.raise_for_status()
             
-            monitor_data = response.json()
+            monitor_data = response.json()  
             return self._parse_monitor(monitor_data)
             
+        except requests.exceptions.Timeout:
+            print(f"Error: Timeout al obtener detalles del monitor {monitor_guid}")
+            return None
         except requests.exceptions.RequestException as e:
             print(f"Error al obtener detalles del monitor {monitor_guid}: {e}")
             return None
@@ -127,40 +139,40 @@ class UptrendsClient:
         Parsea los datos de un monitor desde la API de Uptrends
         """
         try:
-            monitor_type_str = monitor_data.get('MonitorType', 'Http')
+            monitor_type_str = monitor_data['MonitorType']
             monitor_type = MonitorType(monitor_type_str)
             
             return UptrendsMonitor(
-                monitor_guid=monitor_data.get('MonitorGuid', ''),
-                name=monitor_data.get('Name', ''),
-                url=monitor_data.get('Url', ''),
+                monitor_guid=monitor_data['MonitorGuid'],
+                name=monitor_data['Name'],
+                url=monitor_data['Url'],
                 monitor_type=monitor_type,
-                check_interval=monitor_data.get('CheckInterval', 300),
-                selected_checkpoints=monitor_data.get('SelectedCheckpoints', {}),
-                is_active=monitor_data.get('IsActive', True),
-                http_method=monitor_data.get('HttpMethod'),
-                request_headers=monitor_data.get('RequestHeaders'),
-                request_body=monitor_data.get('RequestBody'),
-                expected_http_status_code=monitor_data.get('ExpectedHttpStatusCode') if monitor_data.get('ExpectedHttpStatusCodeSpecified') else None,
-                user_agent=monitor_data.get('UserAgent'),
-                load_time_limit1=monitor_data.get('LoadTimeLimit1'),
-                load_time_limit2=monitor_data.get('LoadTimeLimit2'),
-                authentication_type=monitor_data.get('AuthenticationType'),
-                username=monitor_data.get('Username'),
-                password=monitor_data.get('Password'),
-                self_service_transaction_script=monitor_data.get('SelfServiceTransactionScript'),
-                multi_step_api_transaction_script=monitor_data.get('MultiStepApiTransactionScript'),
-                msa_steps=monitor_data.get('MsaSteps'),
-                transaction_step_definition=monitor_data.get('TransactionStepDefinition'),
-                browser_type=monitor_data.get('BrowserType'),
-                browser_window_dimensions=monitor_data.get('BrowserWindowDimensions'),
-                dns_server=monitor_data.get('DnsServer'),
-                dns_query=monitor_data.get('DnsQuery'),
-                dns_expected_result=monitor_data.get('DnsExpectedResult'),
-                port=monitor_data.get('Port'),
-                notes=monitor_data.get('Notes'),
-                generate_alert=monitor_data.get('GenerateAlert'),
-                monitor_mode=monitor_data.get('MonitorMode')
+                check_interval=monitor_data['CheckInterval'],
+                selected_checkpoints=monitor_data['SelectedCheckpoints'],
+                is_active=monitor_data['IsActive'],
+                http_method=monitor_data['HttpMethod'],
+                request_headers=monitor_data['RequestHeaders'],
+                request_body=monitor_data['RequestBody'],
+                expected_http_status_code=monitor_data['ExpectedHttpStatusCode'] if monitor_data['ExpectedHttpStatusCodeSpecified'] else None,
+                user_agent=monitor_data['UserAgent'],
+                load_time_limit1=monitor_data['LoadTimeLimit1'],
+                load_time_limit2=monitor_data['LoadTimeLimit2'],
+                authentication_type=monitor_data['AuthenticationType'],
+                username=monitor_data['Username'],
+                password=monitor_data['Password'],
+                self_service_transaction_script=monitor_data['SelfServiceTransactionScript'],
+                multi_step_api_transaction_script=monitor_data['MultiStepApiTransactionScript'],
+                msa_steps=monitor_data['MsaSteps'],
+                transaction_step_definition=monitor_data['TransactionStepDefinition'],
+                browser_type=monitor_data['BrowserType'],
+                browser_window_dimensions=monitor_data['BrowserWindowDimensions'],
+                dns_server=monitor_data['DnsServer'],
+                dns_query=monitor_data['DnsQuery'],
+                dns_expected_result=monitor_data['DnsExpectedResult'],
+                port=monitor_data['Port'],
+                notes=monitor_data['Notes'],
+                generate_alert=monitor_data['GenerateAlert'],
+                monitor_mode=monitor_data['MonitorMode']
             )
             
         except (KeyError, ValueError) as e:

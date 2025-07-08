@@ -27,6 +27,11 @@ class AIMonitorClassifier:
         self.ollama_host = ollama_host
         self.model_name = model_name
         self.use_hybrid_logic = True
+        # Headers para requests
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
         self.classification_prompt = """
         You are an expert in synthetic monitoring. Your task is to analyze an Uptrends monitor and determine:
         1. The most appropriate monitor type for Elastic Synthetics (http, tcp, icmp, browser)
@@ -189,6 +194,7 @@ class AIMonitorClassifier:
                         "num_predict": 1000
                     }
                 },
+                headers=self.headers,
                 timeout=30
             )
             

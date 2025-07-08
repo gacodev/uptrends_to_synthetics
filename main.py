@@ -44,7 +44,7 @@ def main():
     
     # Paso 3: Obtener patrón de filtro
     print("\n📋 Paso 3: Configurando filtro de monitores...")
-    pattern = "common_services"
+    pattern = "CLVT"
     print("\n🚀 Paso 4: Ejecutando proceso de migración...")
     
     try:
@@ -68,43 +68,6 @@ def main():
             print(f"  - nodejs-monitors/monitors/lightweight/ (YAML)")
             print(f"  - nodejs-monitors/monitors/journey/ (TypeScript)")
             
-            # Mostrar detalles de monitores procesados
-            print(f"\n📋 Detalle de monitores procesados:")
-            success_table = Table(title="Monitores Migrados Exitosamente")
-            success_table.add_column("Monitor", style="cyan")
-            success_table.add_column("Tipo Original", style="magenta")
-            success_table.add_column("Tipo Elastic", style="green")
-            success_table.add_column("Archivo", style="yellow")
-            
-            for monitor_result in results['monitors']:
-                if monitor_result['success']:
-                    success_table.add_row(
-                        monitor_result['monitor_name'],
-                        monitor_result['original_type'],
-                        monitor_result['elastic_type'],
-                        monitor_result.get('output_file', 'N/A')
-                    )
-            
-            if success_table.rows:
-                print(success_table)
-        
-        # Mostrar errores si los hay
-        failed_monitors = [m for m in results['monitors'] if not m['success']]
-        if failed_monitors:
-            print(f"\n❌ Monitores con errores:")
-            error_table = Table(title="Monitores Fallidos")
-            error_table.add_column("Monitor", style="cyan")
-            error_table.add_column("Errores", style="red")
-            
-            for monitor_result in failed_monitors:
-                errors_text = "; ".join(monitor_result.get('errors', ['Error desconocido']))
-                error_table.add_row(
-                    monitor_result['monitor_name'],
-                    errors_text
-                )
-            
-            print(error_table)
-        
         print(f"\n✅ Proceso completado. Revisa los archivos en nodejs-monitors/monitors/")
         
     except Exception as e:
